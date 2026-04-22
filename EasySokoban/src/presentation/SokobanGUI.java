@@ -1,5 +1,9 @@
 package presentation;
 
+import java.io.File;
+
+import java.awt.Color;
+
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.*;
@@ -10,6 +14,17 @@ public class SokobanGUI extends JFrame {
     private JMenuBar menuBar;
     private JMenu menuGame;
     private JMenuItem myNew, myOpen, mySave, myExit;
+    
+    //Ciclo 3
+    private JPanel panelBoard;
+    private JPanel panelInfo;
+    private JPanel panelInstructions;
+
+    //Ciclo 4
+    private JMenuItem myColors;
+    private Color boxColor = new Color(139, 90, 43); //Cafe
+    private Color targetColor = new Color(255, 182, 193); //Rosado
+    private Color boxOnTargetColor = new Color(255, 140, 0); //naranja
 
     public SokobanGUI() {
 
@@ -27,6 +42,41 @@ public class SokobanGUI extends JFrame {
         setSize(width, height);
         setLocationRelativeTo(null);
         setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
+
+        //Ciclo 3
+        setLayout(new BorderLayout());
+        prepareElementsBoard();
+        prepareElementsInfo();
+        prepareElementsInstructions();
+    }
+
+    private void prepareElementsBoard(){
+        panelBoard = new JPanel();
+        panelBoard.setBackground(Color.WHITE);
+        panelBoard.setBorder(BorderFactory.createLineBorder(Color.BLACK, 2));
+        add(panelBoard, BorderLayout.CENTER);
+    }
+
+    private void prepareElementsInfo(){
+        panelInfo = new JPanel();
+        panelInfo.setPreferredSize(new Dimension(150, 0));
+        panelInfo.setBorder(BorderFactory.createTitledBorder("Game Info"));
+        JLabel lblBoxes = new JLabel("Boxes in place: 0");
+        panelInfo.add(lblBoxes);
+        add(panelInfo, BorderLayout.EAST);
+    }
+
+    private void prepareElementsInstructions(){
+        panelInstructions = new JPanel();
+        panelInstructions.setPreferredSize(new Dimension(150, 0));
+        panelInstructions.setBorder(BorderFactory.createTitledBorder("How to play"));
+        JLabel lblMove = new JLabel("<html>Move:<br>W A S D<br>or arrow keys</html>");
+        panelInstructions.add(lblMove);
+        add(panelInstructions, BorderLayout.WEST);
+    }
+
+    public void refresh(){
+        panelBoard.repaint();
     }
 
     public void prepareElementsMenu(){
@@ -42,6 +92,11 @@ public class SokobanGUI extends JFrame {
         menuGame.add(myOpen);
         menuGame.add(mySave);
         menuGame.addSeparator();
+
+        myColors = new JMenuItem("Change Colors"); //Ciclo 4
+        menuGame.add(myColors);
+        menuGame.addSeparator();
+
         menuGame.add(myExit);
 
         menuBar.add(menuGame);
@@ -62,6 +117,43 @@ public class SokobanGUI extends JFrame {
             @Override
             public void actionPerformed(ActionEvent e){
                 exit();
+            }
+        });
+
+        myOpen.addActionListener(new ActionListener(){
+            @Override
+            public void actionPerformed(ActionEvent e){
+                JFileChooser chooser = new JFileChooser();
+                int result = chooser.showOpenDialog(SokobanGUI.this);
+                if(result == JFileChooser.APPROVE_OPTION){
+                    File file = chooser.getSelectedFile();
+                    JOptionPane.showMessageDialog(SokobanGUI.this, "Opening file: " + file.getName());
+                }
+            }
+        });
+
+        mySave.addActionListener(new ActionListener(){
+            @Override
+            public void actionPerformed(ActionEvent e){
+                JFileChooser chooser = new JFileChooser();
+                int result = chooser.showSaveDialog(SokobanGUI.this);
+                if(result == JFileChooser.APPROVE_OPTION){
+                    File file = chooser.getSelectedFile();
+                    JOptionPane.showMessageDialog(SokobanGUI.this, "Saving file: " + file.getName());
+                }
+            }
+        });
+
+        //Oyente ciclo 4
+        myColors.addActionListener(new ActionListener(){
+            @Override
+            public void actionPerformed(ActionEvent e){
+                Color newColor = JColorChooser.showDialog(SokobanGUI.this, "Select box color", boxColor);
+                if(newColor != null){
+                    boxColor = newColor;
+                    panelBoard.setBackground(newColor);
+                    refresh();
+                }
             }
         });
     }
