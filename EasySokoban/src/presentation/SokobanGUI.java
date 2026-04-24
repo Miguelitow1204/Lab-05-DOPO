@@ -20,7 +20,7 @@ public class SokobanGUI extends JFrame {
     //Menu components
     private JMenuBar menuBar;
     private JMenu menuGame;
-    private JMenuItem myNew, myOpen, mySave, myExit, myColors;
+    private JMenuItem myNew, myOpen, mySave, myExit, myColors, myRestart, mySize;
     
     //Ciclo 3
     //Panel components
@@ -85,7 +85,7 @@ public class SokobanGUI extends JFrame {
         panelInfo = new JPanel();
         panelInfo.setPreferredSize(new Dimension(150, 0));
         panelInfo.setBorder(BorderFactory.createTitledBorder("Game Info"));
-        JLabel lblBoxes = new JLabel("Boxes in place: 0");
+        lblBoxes = new JLabel("Boxes in place: 0");
         panelInfo.add(lblBoxes);
         add(panelInfo, BorderLayout.EAST);
     }
@@ -108,7 +108,6 @@ public class SokobanGUI extends JFrame {
      */
     public void refresh(){
         if(lblBoxes != null){
-            System.out.println("Actualizando label: " + sokoban.getBoxesOnTarget());
             lblBoxes.setText("Boxes in place: " + sokoban.getBoxesOnTarget());
         }
         panelBoard.repaint();
@@ -130,13 +129,17 @@ public class SokobanGUI extends JFrame {
         mySave = new JMenuItem("Save Game");
         myColors = new JMenuItem("Change Colors"); //Ciclo 4
         myExit = new JMenuItem("Exit");
+        myRestart = new JMenuItem("Restart");
+        mySize = new JMenuItem("Change Size");
 
         menuGame.add(myNew);
+        menuGame.add(myRestart);
         menuGame.addSeparator();
         menuGame.add(myOpen);
         menuGame.add(mySave);
         menuGame.addSeparator();
         menuGame.add(myColors);
+        menuGame.add(mySize);
         menuGame.addSeparator();
         menuGame.add(myExit);
 
@@ -192,7 +195,12 @@ public class SokobanGUI extends JFrame {
             @Override
             public void actionPerformed(ActionEvent e) {
                 sokoban = new Sokoban(9, 7);
+                remove(panelBoard);
                 panelBoard = new BoardPanel(sokoban, boxColor, targetColor, boxOnTargetColor);
+                panelBoard.setFocusable(false);
+                panelBoard.setBorder(BorderFactory.createLineBorder(Color.BLACK, 2));
+                add(panelBoard, BorderLayout.CENTER);
+                revalidate();
                 refresh();
             }
         });
@@ -242,6 +250,48 @@ public class SokobanGUI extends JFrame {
                 }
                 panelBoard.updateColors(boxColor, targetColor, boxOnTargetColor);
                 refresh();
+            }
+        });
+
+        myRestart.addActionListener(new ActionListener(){
+            @Override
+            public void actionPerformed(ActionEvent e){
+                sokoban.restart();
+                remove(panelBoard);
+                panelBoard = new BoardPanel(sokoban, boxColor, targetColor, boxOnTargetColor);
+                panelBoard.setFocusable(false);
+                panelBoard.setBorder(BorderFactory.createLineBorder(Color.BLACK, 2));
+                add(panelBoard, BorderLayout.CENTER);
+                revalidate();
+                refresh();
+            }
+        });
+
+        mySize.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                String rowsStr = JOptionPane.showInputDialog(SokobanGUI.this, "Enter number of rows:", "Change Size", JOptionPane.QUESTION_MESSAGE);
+                String colsStr = JOptionPane.showInputDialog(SokobanGUI.this, "Enter number of columns:", "Change Size", JOptionPane.QUESTION_MESSAGE);
+                if (rowsStr != null && colsStr != null) {
+                    try {
+                        int newRows = Integer.parseInt(rowsStr);
+                        int newCols = Integer.parseInt(colsStr);
+                        if (newRows >= 5 && newCols >= 5) {
+                            sokoban.resize(newRows, newCols);
+                            remove(panelBoard);
+                            panelBoard = new BoardPanel(sokoban, boxColor, targetColor, boxOnTargetColor);
+                            panelBoard.setFocusable(false);
+                            panelBoard.setBorder(BorderFactory.createLineBorder(Color.BLACK, 2));
+                            add(panelBoard, BorderLayout.CENTER);
+                            revalidate();
+                            refresh();
+                        } else {
+                            JOptionPane.showMessageDialog(SokobanGUI.this,"Minimum size is 5x5.", "Invalid Size", JOptionPane.WARNING_MESSAGE);
+                        }
+                    } catch (NumberFormatException ex) {
+                        JOptionPane.showMessageDialog(SokobanGUI.this,"Please enter valid numbers.", "Invalid Input", JOptionPane.WARNING_MESSAGE);
+                    }
+                }
             }
         });
     }

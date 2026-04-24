@@ -26,6 +26,9 @@ public class Sokoban{
     private int pRow;
     private int pCol;
     private int boxesOnTarget;
+    private int [][] initialBoard;
+    private int initialPlayerRow;
+    private int initialPlayerCol;
 
     /**
      * Constructor for the Sokoban class.
@@ -104,6 +107,16 @@ public class Sokoban{
         placeRandom(WALL, numObjects);
         placeRandom(TARGET, numObjects);
         placeRandom(BOX, numObjects);
+
+        //Save initial state for restart
+        initialBoard = new int[rows][cols];
+        for (int i = 0; i < rows; i++){
+            for (int j = 0; j < cols; j++){
+                initialBoard[i][j] = board[i][j];
+            }
+        }
+        initialPlayerRow = pRow;
+        initialPlayerCol = pCol;
     }
 
     /**
@@ -264,4 +277,21 @@ public class Sokoban{
         board = new int[rows][cols];
         generateBoard();
     }
+
+    //Ciclo 7: Reiniciar
+    /**
+     * Restarts the game by generating the board with the same dimensions
+     */
+    public void restart() {
+        boxesOnTarget = 0;
+        cellUnderPlayer = EMPTY;
+        pRow = initialPlayerRow;
+        pCol = initialPlayerCol;
+        for (int i = 0; i < rows; i++) {
+            for (int j = 0; j < cols; j++) {
+                board[i][j] = initialBoard[i][j];
+            }
+        }
+    }
+
 }
